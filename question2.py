@@ -17,12 +17,12 @@ class LinearRegressionScratch:
         # x devient une matrice avec des 1 en bas avec la taille de y
         y = np.reshape(y, (len(y),1), order='C')
         X = np.concatenate([X, np.ones_like(y)], axis=1)
-        # on récupère la taille de X et y
+        # we gather X shape
         rows, cols = X.shape
         if method == 'ols':
-            # si on a plus de lignes que de variables, we gather the rank of the matrix
+            # if more raws than columns, we gather the rank of the matrix
             if rows >= cols == np.linalg.matrix_rank(X):
-                # on stocke dans les coefficients le produit matriciel avec la formule connue
+                # We use the famous formula for the OLS
                 self.weights = np.matmul(
                     np.matmul(
                         np.linalg.inv(
@@ -31,7 +31,7 @@ class LinearRegressionScratch:
                                 X)),
                         X.transpose()),
                     y)
-            # si on a moins de lignes que de colonnes
+            # if less raws than columns => impossible
             else:
                 print('X has not full column rank. method=\'solve\' cannot be used.')
 
@@ -62,31 +62,29 @@ class LinearRegressionScratch:
             X : NdArray: test set
         """
 
-        # Si on a pas attribué les poids alors c'est qu'on a pas utilisé le fit
+        # If no weights => no fit
         if not hasattr(self, 'weights'):
             print('Cannot predict. You should call the .fit() method first.')
             return
-        # Sinon : on reprend le X de départ et on ajoute des une matrice de 1 telle que ...
+
+
         X = np.concatenate([X, np.ones((X.shape[0], 1))], axis=1)
 
-        # Si on a un nombre différent de variables que de coefficients alors on a un problème
         if X.shape[1] != self.weights.shape[0]:
             #print(f'Shapes do not match. {X.shape[1]} != {self.weights.shape[0]}')
             return
 
-        # Sinon on retourne simplement le produit matriciel en X et les weights obtenus
-
         return np.matmul(X, self.weights)
 
     def rmse(self, X, y):
-        # on utilise la fonction ci dessus
+        # we use the fit method from bellow
         y_hat = self.predict(X).ravel()
 
-        # si on a pas de prédiction on ne peut pas calculer le RMSE
+        # if not prediction we quit
         if y_hat is None:
             return
 
-        # Sinon on applique la formule standard
+        # otherwise we apply the formula
         return np.sqrt((np.mean((y_hat - y)**2)))
 
     def get_weights(self):
